@@ -6,12 +6,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
+import '../cubit/obscure_text_cange_cubit.dart';
+import '../cubit/obscure_text_cange_state.dart';
+
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     bool isLoading = false;
+    bool obscureTextPassword = true;
 
     TextEditingController email = TextEditingController();
 
@@ -99,14 +103,37 @@ class LoginPage extends StatelessWidget {
                                 height:
                                     MediaQuery.of(context).size.height * 0.050,
                               ),
-                              TextField(
-                                controller: password,
-                                keyboardType: TextInputType.text,
-                                obscureText: true,
-                                decoration: const InputDecoration(
-                                  hintText: "Password",
-                                  prefixIcon: Icon(Icons.lock_outline_sharp),
-                                ),
+                              BlocConsumer<ObscureTextCangeCubit,
+                                  ObscureTextCangeState>(
+                                listener: (context, state) {
+                                  if (state is ObscureTextChangePassword) {
+                                    obscureTextPassword = !obscureTextPassword;
+                                  }
+                                },
+                                builder: (context, state) {
+                                  return TextField(
+                                    obscureText: obscureTextPassword,
+                                    controller: password,
+                                    keyboardType: TextInputType.text,
+                                    decoration: InputDecoration(
+                                        hintText: "Password",
+                                        prefixIcon:
+                                            Icon(Icons.lock_outline_sharp),
+                                        suffixIcon: IconButton(
+                                          onPressed: () {
+                                            BlocProvider.of<
+                                                        ObscureTextCangeCubit>(
+                                                    context)
+                                                .toggleObscureText();
+                                          },
+                                          icon: Icon(
+                                            obscureTextPassword
+                                                ? CupertinoIcons.eye_slash_fill
+                                                : CupertinoIcons.eye_fill,
+                                          ),
+                                        )),
+                                  );
+                                },
                               ),
                               SizedBox(
                                 height:

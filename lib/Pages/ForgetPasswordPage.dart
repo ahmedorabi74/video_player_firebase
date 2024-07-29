@@ -1,14 +1,16 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-
 class ForgetPasswordPage extends StatelessWidget {
-  const ForgetPasswordPage({super.key});
+  ForgetPasswordPage({super.key});
+
+  TextEditingController email = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffD9A9A9),
+      backgroundColor: const Color(0xffD9A9A9),
       body: SingleChildScrollView(
         child: Stack(
           children: [
@@ -39,9 +41,10 @@ class ForgetPasswordPage extends StatelessWidget {
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.1,
                   ),
-                  const TextField(
+                  TextField(
+                    controller: email,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: "EMAIL",
                       prefixIcon: Icon(Icons.email),
                     ),
@@ -58,7 +61,37 @@ class ForgetPasswordPage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 85, vertical: 15),
                     ),
-                    onPressed: () {},
+                    onPressed: () async {
+                      if (email.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Please enter your email"),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      } else if (email.text.isNotEmpty) {
+                        try {
+                          await FirebaseAuth.instance
+                              .sendPasswordResetEmail(email: email.text);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Password reset email sent✅✅"),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                          Navigator.of(context)
+                              .pushNamedAndRemoveUntil("LoginPage", (route) => false);
+                        } on FirebaseException catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(e.code),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    },
                     child: const Text(
                       "Request Link",
                       style: TextStyle(color: Colors.black, fontSize: 22),
