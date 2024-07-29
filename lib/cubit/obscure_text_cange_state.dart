@@ -1,17 +1,8 @@
-import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 
 @immutable
 abstract class ObscureTextCangeState {}
 
-class ObscureTextCangeInitial extends ObscureTextCangeState {
-  final bool obscureText;
+class ObscureTextChangePassword extends ObscureTextCangeState {}
 
-  ObscureTextCangeInitial({required this.obscureText});
-}
-
-class ObscureTextStatus extends ObscureTextCangeState {
-  final bool obscureText;
-
-  ObscureTextStatus({required this.obscureText});
-}
+class ObscureTextChangeConfirmPassword extends ObscureTextCangeState {}

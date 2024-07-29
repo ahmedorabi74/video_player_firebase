@@ -43,6 +43,7 @@ class AuthCubit extends Cubit<AuthState> {
       }
     }
   }
+
   //////// end of login method
 
   Future signInWithGoogle() async {
@@ -67,44 +68,39 @@ class AuthCubit extends Cubit<AuthState> {
 
       // Once signed in, return the UserCredential
       await FirebaseAuth.instance.signInWithCredential(credential);
-      emit(SuccessLoginWithGoogle(successLoginWithGoogle: "Success Login with google✅✅"));
+      emit(SuccessLoginWithGoogle(
+          successLoginWithGoogle: "Success Login with google✅✅"));
     } on Exception catch (e) {
       emit(FailureLogin(
           errorMessage: "There is an error please try again later"));
     }
   }
 
-  Future<void> signUpMethod(
-      TextEditingController email, TextEditingController password) async {
+  Future<void> signUpMethod(TextEditingController emailController,
+      TextEditingController passwordController) async {
+    emit(SignupLoading());
     try {
-      emit(SignupLoading());
-      UserCredential userData = await FirebaseAuth.instance
+      UserCredential userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(
-              email: email.text, password: password.text);
-      emit(SuccessSignup(successSignup: "Success SignUp✅✅"));
-    } on FirebaseException catch (e) {
-      switch (e.code) {
-        case 'user-not-found':
-          emit(FailureSignup(errorMessage: 'User Not Found'));
-          break;
-        case 'wrong-password':
-          emit(FailureSignup(errorMessage: 'Wrong Password'));
-          break;
-        case 'invalid-email':
-          emit(FailureSignup(errorMessage: 'Invalid Email'));
-          break;
-        case 'channel-error':
-          emit(FailureSignup(
-              errorMessage: 'Please Enter an Email and Password'));
-          break;
-        case 'too-many-requests':
-          emit(FailureSignup(
-              errorMessage: 'There is an error please try again later'));
-          break;
-        default:
-          print(e.code);
-          emit(FailureSignup(errorMessage: 'An unexpected error occurred'));
+              email: emailController.text, password: passwordController.text);
+
+      emit(SuccessSignup(successSignup: 'success SignUp✅✅✅'));
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        emit(FailureSignup(errorMessage: 'Weak Password'));
+      } else if (e.code == 'email-already-in-use') {
+        emit(FailureSignup(errorMessage: "This account already exists"));
+      } else if (e.code == 'invalid-email') {
+        emit(FailureSignup(errorMessage: 'Invalid Email'));
+      } else if (e.code == 'channel-error') {
+        emit(FailureSignup(errorMessage: "Please Enter an Email and Password"));
+      } else if (e.code == 'too-many-requests') {
+        emit(FailureSignup(
+            errorMessage: 'There is an error please try again later'));
       }
+    } catch (ex) {
+      emit(FailureSignup(
+          errorMessage: 'There is an error please try again later'));
     }
   }
 }

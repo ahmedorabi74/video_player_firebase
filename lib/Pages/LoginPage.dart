@@ -21,7 +21,6 @@ class LoginPage extends StatelessWidget {
         if (state is LoginLoading) {
           isLoading = true;
         } else if (state is SuccessLogin) {
-          BlocProvider.of<AuthCubit>(context).loginMethod(email, password);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Colors.green,

@@ -8,6 +8,7 @@ import 'Pages/ForgetPasswordPage.dart';
 import 'Pages/HomePage.dart';
 import 'Pages/LoginPage.dart';
 import 'Pages/RegisterPage.dart';
+import 'cubit/obscure_text_cange_cubit.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -23,7 +24,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [BlocProvider(create: (context) => AuthCubit())],
+      providers: [
+        BlocProvider(create: (context) => AuthCubit()),
+        BlocProvider(create: (context) => ObscureTextCangeCubit())
+      ],
       child: MaterialApp(
         routes: {
           'LoginPage': (context) => LoginPage(),
