@@ -40,6 +40,12 @@ dependencies:
   modal_progress_hud_nsn: ^0.5.1
   google_sign_in: ^6.2.1
   flutter_bloc: ^8.1.6
+  firebase_database: ^11.0.3
+  better_player: ^0.0.84
+  image_picker: ^1.1.2
+  firebase_storage: ^12.1.1
+  video_player: ^2.9.1
+  flick_video_player: ^0.8.0
 
 dev_dependencies:
   flutter_test:
