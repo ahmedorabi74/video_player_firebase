@@ -1,53 +1,47 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flick_video_player/flick_video_player.dart';
-import 'package:video_player/video_player.dart';
+
+import '../widgets/VideoList.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
 
   @override
-  State<Homepage> createState() => HomepageState();
+  _HomepageState createState() => _HomepageState();
 }
 
-class HomepageState extends State<Homepage> {
-  late List<FlickManager> flickManagers;
-
-  final List<String> videoUrls = [
-    "https://firebasestorage.googleapis.com/v0/b/auth3-4379d.appspot.com/o/videos%2F1.mp4?alt=media&token=1f3ef475-22b2-48fb-ac11-9d15acfbfd1f",
-    "https://firebasestorage.googleapis.com/v0/b/auth3-4379d.appspot.com/o/videos%2F2.mp4?alt=media&token=792fda4f-8735-43a2-bffc-f07f8a6284e2",
-    "https://firebasestorage.googleapis.com/v0/b/auth3-4379d.appspot.com/o/videos%2F3.mp4?alt=media&token=e0a2a5fa-404b-4384-b4b9-cce8d8b80af3",
-    "https://firebasestorage.googleapis.com/v0/b/auth3-4379d.appspot.com/o/videos%2F4.mp4?alt=media&token=8ce483ff-6fb8-4937-a327-4e807d60abd9",
-    "https://firebasestorage.googleapis.com/v0/b/auth3-4379d.appspot.com/o/videos%2F5.mp4?alt=media&token=93502639-5630-4c83-81a5-c8bda8a6f8fc",
-    "https://firebasestorage.googleapis.com/v0/b/auth3-4379d.appspot.com/o/videos%2F6.mp4?alt=media&token=a8691a3b-dfac-4efd-bb3a-a644a55a09c7",
-    "https://firebasestorage.googleapis.com/v0/b/auth3-4379d.appspot.com/o/videos%2F7.mp4?alt=media&token=190d7103-01d7-4295-ad14-f4e6eea3d0dc",
-    "https://firebasestorage.googleapis.com/v0/b/auth3-4379d.appspot.com/o/videos%2F55.mp4?alt=media&token=6d9f0b1b-6681-4e57-988e-87f2be7f1fbf",
-    "https://firebasestorage.googleapis.com/v0/b/auth3-4379d.appspot.com/o/videos%2F66.mp4?alt=media&token=596c5e55-f621-40df-ab65-8f801d50668f",
-    "https://firebasestorage.googleapis.com/v0/b/auth3-4379d.appspot.com/o/videos%2F88.mp4?alt=media&token=ee015f30-a2cb-4011-946a-dc6e06085605",
-  ];
+class _HomepageState extends State<Homepage> {
+  late Future<List<Map<String, String>>> _videosFuture;
 
   @override
   void initState() {
     super.initState();
-    _initializeFlickManagers();
+    _videosFuture = _fetchVideos();
   }
 
-  Future<void> _initializeFlickManagers() async {
-    final managers = await Future.wait(
-      videoUrls.map((url) async {
-        return FlickManager(
-          // autoInitialize: false,
-          autoPlay: false,
-          videoPlayerController: VideoPlayerController.networkUrl(
-            Uri.parse(url),
-          ),
-        );
-      }).toList(),
-    );
-    setState(() {
-      flickManagers = managers;
-    });
+  Future<List<Map<String, String>>> _fetchVideos() async {
+    ListResult result = await FirebaseStorage.instance.ref('videos/').listAll();
+
+    List<Map<String, String>> videos = [];
+    for (Reference ref in result.items) {
+      String url = await ref.getDownloadURL();
+      videos.add({'url': url, 'path': ref.fullPath});
+    }
+    return videos;
+  }
+
+  Future<void> _deleteVideo(String videoPath) async {
+    try {
+      await FirebaseStorage.instance.ref(videoPath).delete();
+      setState(() {
+        _videosFuture = _fetchVideos(); // Refresh the list of videos
+      });
+    } catch (e) {
+      // Handle error
+      print('Error deleting video: $e');
+    }
   }
 
   @override
@@ -55,7 +49,7 @@ class HomepageState extends State<Homepage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xffD9A9A9),
-        title: const Text("Video Player App"),
+        title: const Text("Video App Player"),
         centerTitle: true,
         actions: [
           IconButton(
@@ -67,27 +61,61 @@ class HomepageState extends State<Homepage> {
                   .pushNamedAndRemoveUntil("LoginPage", (route) => false);
             },
             icon: const Icon(Icons.logout),
-          )
+          ),
         ],
       ),
       backgroundColor: Colors.white,
-      body: flickManagers == null
-          ? Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.only(
-                  left: 10, right: 10, top: 30, bottom: 30),
-              child: ListView.separated(
-                //padding: EdgeInsets.symmetric(horizontal: 0, vertical: 30),
-                itemCount: videoUrls.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 30),
-                itemBuilder: (context, index) {
-                  return FlickVideoPlayer(
-                    flickManager: flickManagers[index],
-                  );
-                },
-              ),
-            ),
+      body: FutureBuilder<List<Map<String, String>>>(
+        future: _videosFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return const Center(child: Text("Error loading videos"));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text("No videos found"));
+          } else {
+            List<Map<String, String>> videos = snapshot.data!;
+            return ListView.builder(
+              itemCount: videos.length,
+              itemBuilder: (context, index) {
+                return InkWell(
+                  onLongPress: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("Delete Video"),
+                          content: const Text(
+                              "Are you sure you want to delete this video?"),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Close the dialog
+                              },
+                              child: const Text("No"),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                _deleteVideo(videos[index]['path']!);
+                                Navigator.of(context).pop(); // Close the dialog
+                              },
+                              child: const Text("Yes"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: VideoListItem(
+                    videoPath: videos[index]['path']!,
+                  ),
+                );
+              },
+            );
+          }
+        },
+      ),
     );
   }
 }
