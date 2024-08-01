@@ -1,3 +1,4 @@
+import 'package:auth3/Pages/HomePage.dart';
 import 'package:auth3/cubit/auth_cubit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -8,6 +9,7 @@ import 'Pages/ForgetPasswordPage.dart';
 import 'Pages/HomePage.dart';
 import 'Pages/LoginPage.dart';
 import 'Pages/RegisterPage.dart';
+import 'Pages/VideoUpload.dart';
 import 'cubit/obscure_text_cange_cubit.dart';
 import 'firebase_options.dart';
 
@@ -33,7 +35,9 @@ class MyApp extends StatelessWidget {
           'LoginPage': (context) => LoginPage(),
           'RegisterPage': (context) => RegisterPage(),
           'ForgetPasswordPage': (context) => ForgetPasswordPage(),
-          'Homepage': (context) => Homepage(),
+          'TimeLine': (context) => HomePage(),
+          'Homepage': (context) => HomePage(),
+          'UploadVideo': (context) => UploadVideo(),
         },
         initialRoute: FirebaseAuth.instance.currentUser == null
             ? 'LoginPage'

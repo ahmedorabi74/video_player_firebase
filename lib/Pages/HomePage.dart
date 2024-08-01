@@ -1,55 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import '../widgets/VideoList.dart';
-
-class Homepage extends StatefulWidget {
-  const Homepage({super.key});
-
-  @override
-  _HomepageState createState() => _HomepageState();
-}
-
-class _HomepageState extends State<Homepage> {
-  late Future<List<Map<String, String>>> _videosFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _videosFuture = _fetchVideos();
-  }
-
-  Future<List<Map<String, String>>> _fetchVideos() async {
-    ListResult result = await FirebaseStorage.instance.ref('videos/').listAll();
-
-    List<Map<String, String>> videos = [];
-    for (Reference ref in result.items) {
-      String url = await ref.getDownloadURL();
-      videos.add({'url': url, 'path': ref.fullPath});
-    }
-    return videos;
-  }
-
-  Future<void> _deleteVideo(String videoPath) async {
-    try {
-      await FirebaseStorage.instance.ref(videoPath).delete();
-      setState(() {
-        _videosFuture = _fetchVideos(); // Refresh the list of videos
-      });
-    } catch (e) {
-      // Handle error
-      print('Error deleting video: $e');
-    }
-  }
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xffD9A9A9),
-        title: const Text("Video App Player"),
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.blue,
+        title: const Text("Video App Player",style: TextStyle(color: Colors.white),),
         centerTitle: true,
         actions: [
           IconButton(
@@ -60,61 +22,53 @@ class _HomepageState extends State<Homepage> {
               Navigator.of(context)
                   .pushNamedAndRemoveUntil("LoginPage", (route) => false);
             },
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout,color: Colors.white,),
           ),
         ],
       ),
       backgroundColor: Colors.white,
-      body: FutureBuilder<List<Map<String, String>>>(
-        future: _videosFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return const Center(child: Text("Error loading videos"));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text("No videos found"));
-          } else {
-            List<Map<String, String>> videos = snapshot.data!;
-            return ListView.builder(
-              itemCount: videos.length,
-              itemBuilder: (context, index) {
-                return InkWell(
-                  onLongPress: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text("Delete Video"),
-                          content: const Text(
-                              "Are you sure you want to delete this video?"),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop(); // Close the dialog
-                              },
-                              child: const Text("No"),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                _deleteVideo(videos[index]['path']!);
-                                Navigator.of(context).pop(); // Close the dialog
-                              },
-                              child: const Text("Yes"),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  child: VideoListItem(
-                    videoPath: videos[index]['path']!,
-                  ),
-                );
+      body: Column(
+        //mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: 200,
+          ),
+          Center(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 60, vertical: 25),
+              ),
+              onPressed: () {
+                Navigator.pushNamed(context, 'UploadVideo');
               },
-            );
-          }
-        },
+              child: const Text(
+                "Upload new video",
+                style: TextStyle(color: Colors.white, fontSize: 22),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 50,
+          ),
+          Center(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xffD9A9A9),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 78, vertical: 25),
+              ),
+              onPressed: () {
+                Navigator.pushNamed(context, 'TimeLine');
+              },
+              child: const Text(
+                "Go to timeline",
+                style: TextStyle(color: Colors.black, fontSize: 22),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
