@@ -41,7 +41,7 @@ class _UploadVideoState extends State<UploadVideo> {
           onPressed: () async {
             await pickVideos();
           },
-          child: Icon(
+          child: const Icon(
             Icons.video_library,
             color: Colors.blue,
           ),
@@ -49,7 +49,7 @@ class _UploadVideoState extends State<UploadVideo> {
         body: Center(
           child: videoUrl != null
               ? videoPreviewWidget()
-              : Text("No videos selected!"),
+              : const Text("No videos selected!"),
         ),
       ),
     );
@@ -80,45 +80,47 @@ class _UploadVideoState extends State<UploadVideo> {
 
   Widget videoPreviewWidget() {
     if (controller != null && controller!.value.isInitialized) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AspectRatio(
-            aspectRatio: controller!.value.aspectRatio,
-            child: VideoPlayer(controller!),
-          ),
-          SizedBox(
-            height: 30,
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+      return SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AspectRatio(
+              aspectRatio: controller!.value.aspectRatio,
+              child: VideoPlayer(controller!),
             ),
-            onPressed: () async {
-              setState(() {
-                isLoading = true;
-              });
-
-              await uploadVideos();
-              setState(() {
-                isLoading = false;
-              });
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  backgroundColor: Colors.green,
-                  content: Text("video upload successfully ✅✅"),
-                  duration: const Duration(seconds: 3),
-
-                ),
-              );
-            },
-            child: const Text(
-              "Upload",
-              style: TextStyle(color: Colors.white, fontSize: 22),
+            const SizedBox(
+              height: 30,
             ),
-          ),
-        ],
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+              ),
+              onPressed: () async {
+                setState(() {
+                  isLoading = true;
+                });
+
+                await uploadVideos();
+                setState(() {
+                  isLoading = false;
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    backgroundColor: Colors.green,
+                    content: Text("video upload successfully ✅✅"),
+                    duration: Duration(seconds: 3),
+
+                  ),
+                );
+              },
+              child: const Text(
+                "Upload",
+                style: TextStyle(color: Colors.white, fontSize: 22),
+              ),
+            ),
+          ],
+        ),
       );
     } else {
       return const CircularProgressIndicator();

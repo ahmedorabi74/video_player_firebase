@@ -30,7 +30,7 @@ class HomePage extends StatelessWidget {
       body: Column(
         //mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(
+          const SizedBox(
             height: 200,
           ),
           Center(
@@ -49,7 +49,7 @@ class HomePage extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 50,
           ),
           Center(

@@ -118,7 +118,7 @@ class LoginPage extends StatelessWidget {
                                     decoration: InputDecoration(
                                         hintText: "Password",
                                         prefixIcon:
-                                            Icon(Icons.lock_outline_sharp),
+                                            const Icon(Icons.lock_outline_sharp),
                                         suffixIcon: IconButton(
                                           onPressed: () {
                                             BlocProvider.of<
