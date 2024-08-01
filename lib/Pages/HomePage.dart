@@ -12,7 +12,7 @@ class HomePage extends StatelessWidget {
         foregroundColor: Colors.white,
         backgroundColor: Colors.blue,
         title: const Text("Video App Player",style: TextStyle(color: Colors.white),),
-        centerTitle: true,
+        centerTitle: false,
         actions: [
           IconButton(
             onPressed: () async {

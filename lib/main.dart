@@ -9,6 +9,7 @@ import 'Pages/ForgetPasswordPage.dart';
 import 'Pages/HomePage.dart';
 import 'Pages/LoginPage.dart';
 import 'Pages/RegisterPage.dart';
+import 'Pages/TimeLinePage.dart';
 import 'Pages/VideoUpload.dart';
 import 'cubit/obscure_text_cange_cubit.dart';
 import 'firebase_options.dart';
@@ -35,7 +36,7 @@ class MyApp extends StatelessWidget {
           'LoginPage': (context) => LoginPage(),
           'RegisterPage': (context) => RegisterPage(),
           'ForgetPasswordPage': (context) => ForgetPasswordPage(),
-          'TimeLine': (context) => HomePage(),
+          'TimeLine': (context) => TimeLinePage(),
           'Homepage': (context) => HomePage(),
           'UploadVideo': (context) => UploadVideo(),
         },

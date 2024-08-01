@@ -33,7 +33,8 @@ class _UploadVideoState extends State<UploadVideo> {
       inAsyncCall: isLoading,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: const Color(0xffD9A9A9),
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.blue,
           title: const Text("Video App Player"),
         ),
         floatingActionButton: FloatingActionButton(
